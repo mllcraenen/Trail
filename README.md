@@ -1,21 +1,15 @@
 <div align="center">
-    <a href="https://github.com/karakeep-app/karakeep/actions/workflows/ci.yml">
-        <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/karakeep-app/karakeep/ci.yml" />
+    <a href="https://github.com/mllcraenen/Trail/actions/workflows/ci.yml">
+        <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/mllcraenen/Trail/ci.yml" />
     </a>
-    <a href="https://github.com/karakeep-app/karakeep/releases">
-        <img alt="GitHub Release" src="https://img.shields.io/github/v/release/karakeep-app/karakeep" />
-    </a>
-    <a href="https://discord.gg/NrgeYywsFh">
-        <img alt="Discord" src="https://img.shields.io/discord/1223681308962721802?label=chat%20on%20discord" />
-    </a>
-    <a href="https://hosted.weblate.org/engage/hoarder/">
-        <img src="https://hosted.weblate.org/widget/hoarder/hoarder/svg-badge.svg" alt="Translation status" />
+    <a href="https://github.com/mllcraenen/Trail/releases">
+        <img alt="GitHub Release" src="https://img.shields.io/github/v/release/mllcraenen/Trail" />
     </a>
 </div>
 
 # <img height="50px" src="./screenshots/logo.png" />
 
-Karakeep (previously Hoarder) is a self-hostable bookmark-everything app with a touch of AI for the data hoarders out there.
+Trail is a self-hostable bookmark-everything app. It's a fork of [Karakeep](https://github.com/karakeep-app/karakeep) — see [NOTICE.md](./NOTICE.md) for attribution.
 
 ![homepage screenshot](https://github.com/karakeep-app/karakeep/blob/main/screenshots/homepage.png?raw=true)
 
