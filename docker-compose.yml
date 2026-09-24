@@ -1,0 +1,39 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: aio
+    container_name: trail
+    restart: unless-stopped
+    volumes:
+      - /home/admin/data/trail/data:/data
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      MEILI_ADDR: http://meilisearch:7700
+      BROWSER_WEB_URL: http://chrome:9222
+      DATA_DIR: /data
+  chrome:
+    image: ghcr.io/karakeep-app/karakeep-chrome:release
+    container_name: trail_chrome
+    restart: unless-stopped
+    init: true
+    command:
+      - --disable-gpu
+      - --disable-dev-shm-usage
+      - --hide-scrollbars
+      - --disable-blink-features=AutomationControlled
+      - --window-size=1440,900
+  meilisearch:
+    image: getmeili/meilisearch:v1.41.0
+    container_name: trail_meilisearch
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      MEILI_NO_ANALYTICS: "true"
+    volumes:
+      - /home/admin/data/trail/meilisearch:/meili_data
