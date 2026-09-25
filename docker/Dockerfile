@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.7
+
 ################# Monolith Builder ##############
 FROM rust:1-bookworm AS monolith_builder
 
@@ -5,8 +7,15 @@ RUN apt-get update \
     && apt-get install --no-install-recommends -y \
         libssl-dev \
         pkg-config \
-    && rm -rf /var/lib/apt/lists/* \
-    && cargo install monolith --locked
+    && rm -rf /var/lib/apt/lists/*
+
+# Cache the crates.io registry/index and compiled build artifacts across
+# builds -- without this, losing Docker's layer cache (e.g. a builder
+# prune) means recompiling monolith and its whole dependency tree from
+# scratch, which is slow for a Rust build.
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/app/target \
+    cargo install monolith --locked --target-dir /app/target
 
 ################# Base Builder ##############
 # Replace with node:24-slim as soon as https://github.com/nodejs/node/pull/65042 is fixed and uploaded to Docker hub
@@ -55,14 +64,29 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 
-# Build the db migration script
+# Build the db migration script. --config.verify-deps-before-run=false
+# matches every other `pnpm exec`/build call below -- without it, pnpm
+# re-resolves and re-fetches the entire 20-project workspace from the
+# registry on every build (confirmed: ~170-180s, unaffected by Docker's
+# layer cache, identical whether the layer above was cache-hit or not),
+# which was the single largest cost in the whole image build. Fixed:
+# 27.7s measured. (Note: a `--mount=type=cache,target=/pnpm/store` was
+# tried here too but caused the *next* RUN step -- next build -- to
+# hit broken node_modules symlinks and redo a full, uncached re-fetch
+# taking 194s, worse than doing nothing. Not worth the instability for
+# a step that's already fast without it.)
 RUN cd packages/db && \
-    pnpm exec ncc build migrate.ts -o /db_migrations && \
+    pnpm --config.verify-deps-before-run=false exec ncc build migrate.ts -o /db_migrations && \
     cp -R drizzle /db_migrations
 
 
-# Compile the web app
-RUN (cd apps/web && pnpm exec next build --experimental-build-mode compile)
+# Compile the web app. Cache Next's own build cache (.next/cache) so
+# unchanged files don't get recompiled from scratch on every build.
+# Same --config.verify-deps-before-run=false fix as packages/db above --
+# this step had the identical bug (confirmed: 262s with it missing vs.
+# reasonable timing without, same unconditional workspace re-fetch).
+RUN --mount=type=cache,target=/app/apps/web/.next/cache \
+    (cd apps/web && pnpm --config.verify-deps-before-run=false exec next build --experimental-build-mode compile)
 
 # Build the worker code
 RUN (cd apps/workers && pnpm --config.verify-deps-before-run=false build)
