@@ -2,6 +2,10 @@
 
 This document provides context about the Karakeep project for the different agents.
 
+## Branch workflow (Trail fork, not upstream)
+
+This is `mllcraenen/Trail`, a fork of `karakeep-app/karakeep`. Feature work happens on `feature/<name>` branches, PR'd into **`dev`** (not `main`) — `dev` is the active integration branch. `main` only gets updated by periodically merging `dev` into it as releases. Never commit or push directly to either `main` or `dev`; always go through a feature branch + PR, same as every other project on this VPS.
+
 ## Project Overview
 
 Karakeep is a monorepo project managed with Turborepo. It is a "read-it-later" bookmarking application with a focus on collecting and organizing information. The project is built with a modern tech stack, including:
